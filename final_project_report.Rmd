@@ -5,59 +5,39 @@ date: "`r format(Sys.Date(),'%B %d, %Y')`"
 output: html_document
 ---
 
+```{r, include=FALSE}
+
+knitr::opts_chunk$set(echo=FALSE,message=FALSE)
+
+```
+
 ```{r, import_data}
-#| message=FALSE,
-#| echo=FALSE
 
 here::i_am("final_project/final_project_report.Rmd")
-pacman::p_load(tidyverse,rio,gtsummary,plotROC,pROC)
-diabetes <- import(here::here("final_project/diabetes.csv")) %>% janitor::clean_names()
 
 ```
 
 # Introduction
 
-The diabetes pedigree function (DPF) is a calculated risk value for type II diabetes mellitus (T2DM) based off of a person's age and family history of the disease.  These data from the National Institute of Diabetes and Digestive and Kidney Diseases include hypothesized risk factors for T2DM for `r nrow(diabetes)` women who are at least 21 years old and have Pima Indian heritage.  While genetic and environmental factors are thought to contribute to disease risk, BMI remains a clinically and biologically relevant factor to consider when predicting T2DM.  This analysis seeks to understand if an unconditional logistic regression model with BMI alone has any less predictive power than one with BMI and DPF using ROC curves and AUC.
+The diabetes pedigree function (DPF) is a calculated risk value for type II diabetes mellitus (T2DM) based off of a person's age and family history of the disease.  These data from the National Institute of Diabetes and Digestive and Kidney Diseases include hypothesized risk factors for T2DM for 768 women who are at least 21 years old and have Pima Indian heritage.  While genetic and environmental factors are thought to contribute to disease risk, BMI remains a clinically and biologically relevant factor to consider when predicting T2DM.  This analysis seeks to understand if an unconditional logistic regression model with BMI alone has any less predictive power than one with BMI and DPF using ROC curves and AUC.
 
-**Table 1:** Descriptive characteristics of the study population (n=`r nrow(diabetes)`).
+**Table 1:** Descriptive characteristics of the study population (n=768).
 
 ```{r, table_1}
-#| echo=FALSE
 
-diabetes2 <- diabetes %>% mutate(outcome=factor(outcome,levels=c(0,1),labels=c("No T2DM","T2DM")))
-
-table_1 <- diabetes2 %>% select(bmi,diabetes_pedigree_function,outcome) %>% 
-  tbl_summary(statistic=list(all_continuous() ~ "{mean} ({sd})"),
-                          by=outcome,
-                         label=list(bmi ~ "BMI",
-                                    diabetes_pedigree_function ~ "DPF")) %>% 
-  add_overall() %>% 
-  add_p(test=list(all_continuous() ~ "t.test",
-                  all_categorical() ~ "fisher.test"))
-
-table_1
+readRDS(here::here("final_project/output/table_1.rds"))
 
 ```
 
-The mean (SD) BMI for cases was `r inline_text(table_1,variable=bmi,column="T2DM")` whereas the mean BMI (SD) for non-cases was `r inline_text(table_1,variable=bmi,column="No T2DM")`.  The mean (SD) DPF for cases (`r inline_text(table_1,variable=diabetes_pedigree_function,column="T2DM")`) was greater than the mean (SD) DPF for non-cases (`r inline_text(table_1,variable=diabetes_pedigree_function,column="No T2DM")`), suggesting that cases have a higher risk for T2DM based off of their age and family history.
+The mean (SD) BMI for cases was 35 (7) whereas the mean BMI (SD) for non-cases was 30 (8).  The mean (SD) DPF for cases (0.55 (0.37)) was greater than the mean (SD) DPF for non-cases (0.43 (0.30)), suggesting that cases have a higher risk for T2DM based off of their age and family history.
 
 # Analysis
 
 **Figure 1:** Comparing model ROC curves.
 
 ```{r, AUC_plot}
-#| message=FALSE,
-#| echo=FALSE
 
-test_model1 <- glm(outcome ~ bmi, data=diabetes)
-test_model2 <- glm(outcome ~ bmi + diabetes_pedigree_function, data=diabetes)
-
-ggplot(diabetes) + 
-  geom_roc(aes(d=outcome,m=test_model1$fitted.values,color="BMI"),labels=FALSE) + 
-  geom_roc(aes(d=outcome,m=test_model2$fitted.values,color="BMI + DPF"),labels=FALSE) + 
-  geom_abline(slope=1,intercept=0,linetype=2,color="gray") +
-  theme_classic() +
-  labs(x="1-Specificity",y="Sensitivity",color="Model")
+knitr::include_graphics(path=here::here("final_project/output/roc_plot.png"))
 
 ```
 
@@ -66,26 +46,9 @@ Figure 1 displays the ROC for a model predicting T2DM with BMI alone compared to
 **Table 2:** Comparing model AUCs with the Delong test. 
 
 ```{r, ROC_table}
-#| message=FALSE,
-#| echo=FALSE
 
-roc1 <- roc(diabetes$outcome, test_model1$fitted.values)
-roc2 <- roc(diabetes$outcome, test_model2$fitted.values)
-
-roc1_auc <- as.numeric(roc1$auc)
-roc2_auc <- as.numeric(roc2$auc)
-
-roc_test <- roc.test(roc1,roc2,method="delong")
-
-roc_test_stat <- as.numeric(roc_test$statistic)
-roc_test_p <- as.numeric(roc_test$p.value)
-
-table_data <- data.frame(roc1_auc,roc2_auc,roc_test_stat,roc_test_p)
-
-knitr::kable(table_data,
-             digits=2,
-             col.names=c("BMI","BMI+DPF","z","p"))
+readRDS(file=here::here("final_project/output/auc_comparison_table.rds"))
 
 ```
 
-Table 2 compares the AUCs for the model with BMI alone and the model with BMI and DPF.  These values were found to `r ifelse(roc_test_p<0.05,"be","not be")` statistically different (p=`r round(roc_test_p,2)`).  `r ifelse(roc_test_p<0.05,"This difference may not be clinically significant, though, suggesting that DPF alone may not contribute much more to the predictive power of BMI for T2DM diagnosis.","")`
+Table 2 compares the AUCs for the model with BMI alone and the model with BMI and DPF.  These values were found to be statistically different (p=0.04).  This difference may not be clinically significant, though, suggesting that DPF alone may not contribute much more to the predictive power of BMI for T2DM diagnosis.
