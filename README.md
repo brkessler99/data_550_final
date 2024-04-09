@@ -20,7 +20,11 @@ intended.
     directory.
 2.  Navigate to the cloned repository. Set this as your working
     directory.  
-3.  Type the command `make` in the RStudio terminal with a bash shell to
+3.  Synchronize your local project directory with the `renv.lock` file
+    to ensure that you have the correct R packages and versions for this
+    analysis Do this by running the command `make install` in the
+    RStudio terminal with a bash shell.
+4.  Type the command `make` in the RStudio terminal with a bash shell to
     create the components of the report and compile
     `final_project_report.html` in your local final_project directory.
     Alternatively, open the Makefile to see what make commands are
