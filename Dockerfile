@@ -12,13 +12,14 @@ RUN apt-get update && apt-get install -y pandoc && apt-get install -y \
   libtiff5-dev \
   libjpeg-dev
 
-RUN mkdir /project
-WORKDIR /project
+RUN mkdir /final_project
+WORKDIR /final_project
 
 RUN mkdir code
 RUN mkdir data
 RUN mkdir output
-COPY code .
+COPY code code
+COPY data data
 COPY Makefile .
 COPY final_project_report.Rmd .
 
@@ -32,18 +33,3 @@ RUN Rscript -e "renv::restore(prompt=FALSE)"
 
 RUN mkdir report
 CMD make && mv final_project_report.Rmd report
-
-###### DO NOT EDIT STAGE 1 BUILD LINES ABOVE ######
-
-FROM rocker/r-ubuntu
-
-WORKDIR /project
-COPY --from=base /project .
-
-COPY code code
-COPY data data
-
-COPY renv/activate.R renv
-COPY renv/settings.json renv
-
-CMD make && mv final_project_report.html report
