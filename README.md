@@ -22,7 +22,7 @@ intended.
     directory.  
 3.  Synchronize your local project directory with the `renv.lock` file
     to ensure that you have the correct R packages and versions for this
-    analysis Do this by running the command `make install` in the
+    analysis. Do this by running the command `make install` in the
     RStudio terminal with a bash shell.
 4.  Type the command `make` in the RStudio terminal with a bash shell to
     create the components of the report and compile
@@ -44,6 +44,21 @@ Code for creating the tables and figure are found in the `code` folder:
   conducts the Delong ROC test, generates and saves **Table 2**
 - 04_render.R: renders the html report **final_project_report.html**
 
-include a README.md file that describes the contents of your repository
-the README should make clear how to generate the final report and a
-brief description of the contents of the report
+# Docker Build
+
+The Docker image called `final_project_image` is available as a public
+DockerHub repository
+[here](https://hub.docker.com/layers/brkessler99/final_project_image/latest/images/sha256:6f3afbc64f5f74041ea977f47c7bd534bbd65ee37e0abe3195be408da5c9a04b?uuid=01a662de-708f-475a-a7c3-565bf2baa81b%0A).
+Build the image by running the command
+`docker pull brkessler99/final_project_image`.
+
+# Docker Run
+
+Run the containerized code by using the make command
+`make report/final_project_report.html` in a bash terminal. This command
+mounts a local directory called `report` to the container and retrieves
+the rendered .html report.
+
+NOTE: This target was designed for a Mac/Linux OS. Windows systems using
+git bash may require an extra `/` at the start of a file path when
+mounting the directory.
