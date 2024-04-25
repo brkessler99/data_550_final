@@ -27,3 +27,6 @@ clean:
 .PHONY: install
 install:
 	Rscript -e "renv::restore(prompt=FALSE)"
+
+report/final_project_report.html: 
+	docker run -v /$(pwd):/project/report final_project_image
