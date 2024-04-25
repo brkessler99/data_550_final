@@ -32,4 +32,4 @@ COPY renv/settings.json renv/settings.json
 RUN Rscript -e "renv::restore(prompt=FALSE)"
 
 RUN mkdir report
-CMD make && mv final_project_report.Rmd report
+CMD make && mv final_project_report.html report
