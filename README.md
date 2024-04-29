@@ -49,8 +49,9 @@ Code for creating the tables and figure are found in the `code` folder:
 The Docker image called `final_project_image` is available as a public
 DockerHub repository
 [here](https://hub.docker.com/layers/brkessler99/final_project_image/latest/images/sha256:6f3afbc64f5f74041ea977f47c7bd534bbd65ee37e0abe3195be408da5c9a04b?uuid=01a662de-708f-475a-a7c3-565bf2baa81b%0A).
-Build the image by running the command
-`docker pull brkessler99/final_project_image`.
+The image was built using the command
+`docker build -t final_project_image .`. Pull the image by running the
+command `docker pull brkessler99/final_project_image`.
 
 # Docker Run
 
