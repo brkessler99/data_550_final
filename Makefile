@@ -21,12 +21,11 @@ output/auc_comparison_table.rds: code/03_auc_comparison.R data/diabetes.csv outp
 
 .PHONY: clean	
 clean:
-	rm output/*
-	rm final_project_report.html
+	rm report/* && rm output/*
 	
 .PHONY: install
 install:
 	Rscript -e "renv::restore(prompt=FALSE)"
 
 report/final_project_report.html: 
-	docker run -v /$(pwd)/report:/final_project/report final_project_image
+	docker run -v /$$(pwd)/report:/final_project/report final_project_image
